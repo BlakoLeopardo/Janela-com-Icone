@@ -1,4 +1,7 @@
+#include <windows.h>
 #include "recurso.h"
+
+#define IDC_STATIC 0  // Definir IDC_STATIC explicitamente, caso necessário.
 
 IDR_MYMENU MENU
 BEGIN
@@ -10,8 +13,19 @@ BEGIN
     POPUP "&Stuff"
     BEGIN
         MENUITEM "&Go", ID_STUFF_GO
-        MENUITEM "G&o Somewhere else", 0, GRAYED
+        MENUITEM "G&o Somewhere else", ID_STUFF_SOMEWHERE, GRAYED
     END
 END
 
 IDI_MYICON ICON "meu_icone.ico"
+
+IDD_ABOUT DIALOGEX DISCARDABLE 0, 0, 239, 66
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MINHA CAIXETA!"
+FONT 10, "MS Sans Serif", 0, 0, 0
+BEGIN
+    DEFPUSHBUTTON "&OK", IDOK, 174, 18, 50, 14
+    PUSHBUTTON "&CANCEL", IDCANCEL, 174, 35, 50, 14
+    GROUPBOX "Sobre este programa...", IDC_STATIC, 7, 7, 225, 52
+    CTEXT "UM MONTE DE BOSTA!\r\n\nby BLAKO", IDC_STATIC, 16, 18, 144, 33, 0x00004000
+END
