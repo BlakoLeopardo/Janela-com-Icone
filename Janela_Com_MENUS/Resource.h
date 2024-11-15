@@ -8,3 +8,4 @@
 #define ID_STUFF_GO_SOMEWERE 9003
 #define IDOK 1
 #define IDCANCEL 2
+#define ID_HELP_ABOUT 9005

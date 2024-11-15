@@ -1,16 +1,108 @@
 #include <windows.h>
 #include "Resource.h"
 
+#define IDC_MAIN_EDIT 501
+
 const char g_szClassName[] = "myWindowClass";
+
+
+BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+    switch (Message)
+    {
+        case WM_INITDIALOG:
+            return TRUE;  // Indica que o diálogo foi inicializado com sucesso
+
+        case WM_COMMAND:
+            switch (LOWORD(wParam))
+            {
+                case ID_HELP_ABOUT: {
+                    int ret = DialogBox(GetModuleHandle(NULL),
+                        MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
+
+                    if (ret == IDOK) 
+                    {
+                        MessageBox(hwnd, "Dialog exited with IDOK.", "Notice", MB_OK | MB_ICONINFORMATION);
+                    } 
+                    return TRUE;
+                }
+                case IDOK:
+                    EndDialog(hwnd, IDOK);  // Fecha o diálogo e retorna IDOK
+                    return TRUE;
+                case IDCANCEL:
+                    EndDialog(hwnd, IDCANCEL);  // Fecha o diálogo e retorna IDCANCEL
+                    return TRUE;
+            }
+            break;
+
+        default:
+            return FALSE;  // Para todas as mensagens não tratadas, retorna FALSE
+    }
+
+    return FALSE;  // Se nenhuma das condições for atendida, retorna FALSE
+}
+
+// Parte que abre os arquivos, essa eu vou precisar se pá
+void OpenFileDialog(HWND, hwnd)
+{
+    OPENFILENAME ofn;
+    char szFileName[MAX_PATH] = "";
+
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.IStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFilter = "Arquivos de Texto(.txt)\0*.txt\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "txt";
+
+    if (GetOpenFileName(&ofn))
+    {
+        // Do something usefull with the filename stored in szFileName
+    }
+    
+}
 
 // Step 4: o procedimento de janela
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch(msg)
     {
+        case WM_CREATE:
+        {
+            HFONT hfDefault;
+            HWND hEdit;
+
+            hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT", "",
+                    WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
+                    0, 0, 1280, 720, hwnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
+            
+            if (hEdit == NULL)
+            {
+                MessageBox(hwnd, "Não pude criar a caixa de editar :(", "ERRO", MB_OK | MB_ICONERROR);
+            }
+            
+            hfDefault = GetStockObject(DEFAULT_GUI_FONT);
+            SendMessage(hEdit, WM_SETFONT, (WPARAM)hfDefault, MAKELPARAM(FALSE, 0));
+        }
+        break;
+        case WM_SIZE:
+        {
+            HWND hEdit;
+            RECT rcClient;
+
+            GetClientRect(hwnd, &rcClient);
+            SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, rcClient.bottom, SWP_NOZORDER);
+        }
+        break;
         case WM_COMMAND:
             switch (LOWORD(wParam))
             {
+            case ID_HELP_ABOUT:
+                DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), hwnd, AboutDlgProc);
+                break;
             case ID_FILE_EXIT:
                 PostMessage(hwnd, WM_CLOSE, 0, 0);  // Fecha a janela quando "Exit" é clicado
                 break;
@@ -93,6 +185,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720,
         NULL, NULL, hInstance, NULL);
+    
+    HMENU hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MYMENU));
+    SetMenu(hwnd, hMenu);
 
     if(hwnd == NULL)
     {
@@ -139,34 +234,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     return Msg.wParam;
 }
-
-BOOL CALLBACK AboutDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
-{
-    switch (Message)
-    {
-        case WM_INITDIALOG:
-            return TRUE;  // Retorna TRUE para indicar que a inicialização do diálogo foi bem-sucedida
-
-        case WM_COMMAND:
-            switch (LOWORD(wParam))
-            {
-                case IDOK:
-                    EndDialog(hwnd, IDOK);  // Fecha o diálogo e retorna IDOK
-                    return TRUE;  // Indica que o comando foi tratado
-
-                case IDCANCEL:
-                    EndDialog(hwnd, IDCANCEL);  // Fecha o diálogo e retorna IDCANCEL
-                    return TRUE;  // Indica que o comando foi tratado
-            }
-            break;
-
-        default:
-            return FALSE;  // Para todas as mensagens não tratadas, retorna FALSE
-    }
-
-    return FALSE;  // Se nenhuma das condições for atendida, retorna FALSE
-}
-
 // Codigo copiado do link - http://www.winprog.org/tutorial/simple_window.html :)
 
 /*  Explicação do código - 

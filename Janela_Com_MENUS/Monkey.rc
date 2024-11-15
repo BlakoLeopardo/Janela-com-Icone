@@ -12,6 +12,10 @@ BEGIN
         MENUITEM "&Go", ID_STUFF_GO
         MENUITEM "G&o somewhere else", 0, GRAYED
     END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "Sobre", ID_HELP_ABOUT
+    END
 END
 
 IDI_MYICON ICON DISCARDABLE "meu_icone.ico"
